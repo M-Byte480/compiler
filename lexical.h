@@ -5,8 +5,9 @@
 #ifndef LEXICAL_H
 #define LEXICAL_H
 #include <stdbool.h>
+#include <stdio.h>
 
-void parseInput(FILE* input);
+void lexicalAnalyser(FILE* input);
 bool isKeyword(char* str);
 bool isOperator(char chr);
 

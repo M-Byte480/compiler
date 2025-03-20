@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
             printf("Error: Unable to open file\n");
             return 1;
         }
-        parseInput(ptrfile);
+        lexicalAnalyser(ptrfile);
 
         fclose(ptrfile);
     }

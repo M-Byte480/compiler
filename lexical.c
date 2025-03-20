@@ -1,14 +1,40 @@
+#include "lexical.h"
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_TOKEN_LENGTH 100
+
 struct Token {
     char *value;
     char *type;
 };
 
+typedef enum {
+    IDENTIFIER, NUMBER, OPERATOR, UNKNOWN, KEYWORD
+} TokenType;
+
+
+bool isOperator(char chr) {
+    return (
+        chr == '+' || chr == '-' || chr == '*' || chr == '/' || chr == '='
+    );
+}
+
+void processToken(char *token) {
+    if (isdigit(token[0])) {
+        printf("NUMBER: %s\n", token);
+    } else if (isalpha(token[0])) {
+        printf("IDENTIFIER: %s\n", token);
+    // } else if (isKeyword(token[0])) {
+    //     printf("KEYWORD: %s\n", token);
+    } else {
+        printf("UNKNOWN TOKEN: %s\n", token);
+    }
+}
 
 bool isKeyword(char *str) {
     const char *keywords[]
@@ -31,11 +57,6 @@ bool isKeyword(char *str) {
     return false;
 }
 
-bool isOperator(char chr) {
-    return (
-        chr == '+' || chr == '-' || chr == '*' || chr == '/' || chr == '='
-    );
-}
 
 char* getOperatorType(char op) {
     switch (op) {
@@ -48,7 +69,7 @@ char* getOperatorType(char op) {
     }
 }
 
-void parseInput(FILE *ptr_file) {
+void lexicalAnalyser(FILE *ptr_file) {
     char chr;
     char buffer[100];
     int buffer_size = 0;
@@ -94,28 +115,34 @@ void parseInput(FILE *ptr_file) {
     }
 }
 
+void test(FILE *ptrFile) {
+    char ch, buffer[MAX_TOKEN_LENGTH];
+    int index = 0;
 
-// if (chr == ' ' || chr == '\n' || chr == '\r') {
-//     if (buffer_size > 0) {
-//         buffer[buffer_size] = '\0';
-//         buffer_size = 0;
-//         if (isKeyword(buffer)) {
-//             printf("keywrd ");
-//         } else if (isOperator(buffer[0])) {
-//             char* op_type = getOperatorType(buffer);
-//             printf("op-%s", op_type);
-//         } else {
-//             printf("id ");
-//         }
-//     }
-//
-//     if (chr == '\n') {
-//         printf("\n");
-//     }
-// } else if (chr == ',') {
-//     printf(", ");
-//     buffer_size = 0; // Reset Buffer
-// } else {
-//     buffer[buffer_size] = chr;
-//     buffer_size++;
-// }
+    while ((ch = fgetc(ptrFile)) != EOF) {
+        if (isspace(ch)) {
+            continue;
+        } else if (isalnum(ch)) {
+            buffer[index++] = ch;
+        } else if (isOperator(ch)) {
+            if (index > 0) {
+                buffer[index] = '\0';
+                processToken(buffer);
+                index = 0;
+            }
+            printf("%c", ch);
+        } else {
+            if (index > 0) {
+                buffer[index] = '\0';
+                processToken(buffer);
+                index = 0;
+            }
+            printf("UNKNOWN CHARACTER: %c\n", ch);
+        }
+    }
+
+    if (index > 0) {
+        buffer[index] = '\0';
+        processToken(buffer);
+    }
+}
